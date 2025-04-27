@@ -28,20 +28,22 @@ RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \
     locale-gen
 ENV LANG=en_US.utf8
 USER agl
+
 WORKDIR /home/agl
 RUN mkdir ./downloads
-RUN mkdir ./tmp
-#VOLUME ./downloads ./downloads
-#VOLUME ./tmp  ./tmp
+RUN mkdir ./deploy
 
 RUN git config --global user.email "linchevs@gmail.com" && git config --global user.name "Nochum Linczewski"
 
+WORKDIR /home/agl/salmon
 RUN   /bin/repo init -b salmon -m salmon_19.0.0.xml -u https://gerrit.automotivelinux.org/gerrit/AGL/AGL-repo
 RUN   /bin/repo sync
-WORKDIR /home/agl/external/poky
-RUN /home/agl/external/poky/scripts/install-buildtools
+
+WORKDIR /home/agl/salmon/external/poky
+RUN /home/agl/salmon/external/poky/scripts/install-buildtools
 COPY rcfile.sh ./
 RUN mkdir -p ./build-lincz/conf
 COPY ./conf/bblayers.conf ./build-lincz/conf/
 COPY ./conf/local.conf ./build-lincz/conf/
+
 CMD ["bash", "--rcfile", "./rcfile.sh"]
