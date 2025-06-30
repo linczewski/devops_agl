@@ -17,17 +17,21 @@ RUN \
                             zstd iproute2 lz4 iputils-ping \
                             libtinfo5 net-tools xterm rsync u-boot-tools unzip zip \
                             \
-                            cscope
+                            cscope \
+          && \
+        apt-get clean \
+          && \
+        curl https://storage.googleapis.com/git-repo-downloads/repo > /bin/repo && chmod a+x /bin/repo && \
+        groupadd agl -g 1000 && \
+        useradd -ms /bin/bash -p agl agl  -u 1028 -g 1000 && \
+        usermod -aG sudo agl && \
+        echo "agl:agl" | chpasswd \
+          && \
+        echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \
+        locale-gen
 
-RUN curl https://storage.googleapis.com/git-repo-downloads/repo > /bin/repo && chmod a+x /bin/repo
-RUN groupadd agl -g 1000 && \
-    useradd -ms /bin/bash -p agl agl  -u 1028 -g 1000 && \
-    usermod -aG sudo agl && \
-    echo "agl:agl" | chpasswd
-
-RUN echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \
-    locale-gen
 ENV LANG=en_US.utf8
+
 USER agl
 
 WORKDIR /home/agl
