@@ -44,6 +44,8 @@ WORKDIR /home/agl/salmon
 RUN   /bin/repo init -b salmon -m salmon_19.0.0.xml -u https://gerrit.automotivelinux.org/gerrit/AGL/AGL-repo && \
       /bin/repo sync
 
+RUN --mount=type=ssh git clone git@github.com:linczewski/meta-lincz.git
+
 WORKDIR /home/agl/salmon/external/poky
 RUN /home/agl/salmon/external/poky/scripts/install-buildtools
 COPY rcfile.sh ./
