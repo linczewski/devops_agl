@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: agl-build
+spec:
+  containers:
+    - name: builder
+      image: agl
+      command: ["bash", "--rcfile", "./rcfile.sh"]
+      tty: true
+      stdin: true
+      volumeMounts:
+        - name: downloads
+          mountPath: /home/agl/downloads
+        - name: deploy
+          mountPath: /home/agl/deploy
+      env:
+        - name: TERM
+          value: xterm
+  volumes:
+    - name: downloads
+      hostPath:
+        path: $PROJECT_ROOT/downloads
+        type: DirectoryOrCreate
+    - name: deploy
+      hostPath:
+        path: $PROJECT_ROOT/deploy
+        type: DirectoryOrCreate
+  restartPolicy: Never

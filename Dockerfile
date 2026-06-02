@@ -1,4 +1,5 @@
-FROM debian:12-slim
+#NOTE: Podman compatible
+FROM docker.io/library/debian:12-slim
 LABEL maitaners="Nochum Linczewski<linchevs@gmail.com>"
 
 ARG DEBIAN_FRONTEND=noninteractive
@@ -12,7 +13,7 @@ RUN \
                             man bash diffstat gawk chrpath wget cpio \
                             texinfo lzop apt-utils bc screen libncurses5-dev locales \
                             libc6-dev doxygen libssl-dev dos2unix xvfb x11-utils \
-                            g++-multilib libssl-dev zlib1g-dev \
+                            g++-multilib libssl-dev zlib1g-dev openssh-client\
                             libtool libtool-bin procps python3-distutils pigz socat \
                             zstd iproute2 lz4 iputils-ping \
                             libtinfo5 net-tools xterm rsync u-boot-tools unzip zip \
@@ -32,6 +33,8 @@ RUN \
 
 ENV LANG=en_US.utf8
 
+
+
 USER agl
 
 WORKDIR /home/agl
@@ -44,13 +47,25 @@ WORKDIR /home/agl/salmon
 RUN   /bin/repo init -b salmon -m salmon_19.0.0.xml -u https://gerrit.automotivelinux.org/gerrit/AGL/AGL-repo && \
       /bin/repo sync
 
-RUN --mount=type=ssh git clone git@github.com:linczewski/meta-lincz.git
-
 WORKDIR /home/agl/salmon/external/poky
 RUN /home/agl/salmon/external/poky/scripts/install-buildtools
+
 COPY rcfile.sh ./
 RUN mkdir -p ./build-lincz/conf
 COPY ./conf/bblayers.conf ./build-lincz/conf/
 COPY ./conf/local.conf ./build-lincz/conf/
+
+USER root
+
+WORKDIR /home/agl/salmon
+
+RUN --mount=type=ssh \
+	mkdir -p -m 0700 ~/.ssh && \
+	ssh-keyscan github.com >> ~/.ssh/known_hosts && \
+	git clone git@github.com:linczewski/meta-lincz.git && \
+	chown -R agl:agl meta-lincz
+
+USER agl
+WORKDIR /home/agl/salmon/external/poky
 
 CMD ["bash", "--rcfile", "./rcfile.sh"]
