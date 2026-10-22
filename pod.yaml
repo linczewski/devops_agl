@@ -3,6 +3,11 @@ kind: Pod
 metadata:
   name: agl-build
 spec:
+  securityContext:
+    runAsUser: $AGL_UID
+    runAsGroup: $AGL_GID
+    supplementalGroups:
+      - 0
   containers:
     - name: builder
       image: agl

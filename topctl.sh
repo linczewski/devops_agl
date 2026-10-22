@@ -19,11 +19,17 @@ build() {
   podman build --progress=plain --ssh=default -t agl .
 }
 
+fetch_env() {
+  export AGL_UID=$(podman run --rm agl id -u)
+  export AGL_GID=$(podman run --rm agl id -g)
+}
+
 run() {
   if podman pod exists agl-build; then
     echo "Pod 'agl-build' already exists. Run 'clean' first, or: podman pod rm -f agl-build"
     return 1
   fi
+  fetch_env
   podman kube play <(envsubst < pod.yaml)
 }
 
