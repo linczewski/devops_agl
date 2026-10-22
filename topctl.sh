@@ -24,12 +24,25 @@ fetch_env() {
   export AGL_GID=$(podman run --rm agl id -g)
 }
 
+prepare_tmp() {
+  local tmpfs_avail_kb
+  tmpfs_avail_kb=$(df -P -k /tmp | awk 'NR==2 {print $4}')
+  if (( tmpfs_avail_kb >= 40 * 1024 * 1024 )); then
+    export TMP_HOST_PATH="/tmp/salmon"
+  else
+    export TMP_HOST_PATH="$PROJECT_ROOT/tmp"
+  fi
+  mkdir -p "$TMP_HOST_PATH"
+  podman unshare chown -R "$AGL_UID:$AGL_GID" "$TMP_HOST_PATH"
+}
+
 run() {
   if podman pod exists agl-build; then
     echo "Pod 'agl-build' already exists. Run 'clean' first, or: podman pod rm -f agl-build"
     return 1
   fi
   fetch_env
+  prepare_tmp
   podman kube play <(envsubst < pod.yaml)
 }
 

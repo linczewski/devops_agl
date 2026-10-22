@@ -19,6 +19,8 @@ spec:
           mountPath: /home/agl/downloads
         - name: deploy
           mountPath: /home/agl/deploy
+        - name: tmp
+          mountPath: /tmp/salmon
       env:
         - name: TERM
           value: xterm
@@ -30,5 +32,9 @@ spec:
     - name: deploy
       hostPath:
         path: $PROJECT_ROOT/deploy
+        type: DirectoryOrCreate
+    - name: tmp
+      hostPath:
+        path: $TMP_HOST_PATH
         type: DirectoryOrCreate
   restartPolicy: Never
